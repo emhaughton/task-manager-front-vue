@@ -2,7 +2,7 @@
   <div class="greetings">
     <h1 class="green">Task Manager</h1>
     <h3>
-      Lorem impsu dolor
+      Listado de tareas
     </h3>
   </div>
 </template>
