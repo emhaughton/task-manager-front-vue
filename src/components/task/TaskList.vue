@@ -6,21 +6,26 @@ import "@harv46/vue-table/dist/style.css";
 import axios from "axios";
 import { ref } from "vue";
 
+
+
+
 let getData = ref([]);
+let urlApi = import.meta.env.VITE_API_ENDPOINT; 
 
 const headers = ["Nombre","Estado", "Categoría", "Creado"];
 const keyValue = ["name","status", "category","created_at"];
 
-const filldatatable = () => axios.get("http://task-manager.test/api/task").then((result) => {
+const filldatatable = () => axios.get(`${urlApi}task`).then((result) => {
     getData.value = result.data?.data;
 });
 
 filldatatable();
 
 const deleteItem = (uuid) => {
-    axios.delete(`http://task-manager.test/api/task/${uuid}`).then((result) => {
+    axios.delete(`${urlApi}task/${uuid}`).then((result) => {
         if (result.data.success) filldatatable();
     });
+    alert('Tarea borrada');
 }
 
 </script>

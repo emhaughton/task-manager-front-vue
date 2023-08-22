@@ -20,14 +20,14 @@
                 <label for="status">Estado</label>
                 <select name="status_uuid" v-model="task.status_uuid"
                     class="w-full p-2 border border-gray-300 outline-none rounded-md bg-white" required>
-                    <option v-for="status in statuses.data" :value="status.uuid">{{status.name}}</option>
+                    <option v-for="status in statuses.data" :value="status.uuid" v-bind:key="status.uuid">{{status.name}}</option>
                 </select>
             </div>
             <div class="mb-2">
                 <label for="category">Category</label>
                 <select name="category_uuid" v-model="task.category_uuid"
                     class="w-full p-2 border border-gray-300 outline-none rounded-md bg-white" required>
-                    <option v-for="category in categories.data" :value="category.uuid">{{category.name}}</option>
+                    <option v-for="category in categories.data" :value="category.uuid" v-bind:key="category.uuid">{{category.name}}</option>
                 </select>
             </div>
             <button class="px-6 py-2 text-white bg-blue-500  hover:bg-sky-700 rounded-md mr-3" type="submit">
@@ -45,6 +45,8 @@
 import { reactive, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
+
+let urlApi = import.meta.env.VITE_API_ENDPOINT; 
 
 export default {
 
@@ -70,7 +72,7 @@ export default {
 
         onMounted(() => {
             axios
-                .get(`http://task-manager.test/api/task/${route.params.id}`)
+                .get(`${urlApi}task/${route.params.id}`)
                 .then((response) => {
                     const data = response.data.data;
 
@@ -86,7 +88,7 @@ export default {
 
         onMounted(() => {
             axios
-                .get(`http://task-manager.test/api/category`)
+                .get(`${urlApi}category`)
                 .then((response) => {
                    categories.data = response.data.data;
                 })
@@ -97,7 +99,7 @@ export default {
 
         onMounted(() => {
             axios
-                .get(`http://task-manager.test/api/status`)
+                .get(`${urlApi}status`)
                 .then((response) => {
                    statuses.data = response.data.data;
                 })
@@ -108,11 +110,12 @@ export default {
 
         function submit() {
             axios
-                .put(`http://task-manager.test/api/task/${route.params.id}`, { ...task })
+                .put(`${urlApi}task/${route.params.id}`, { ...task })
                 .then(() => {
                     router.push({
                         name: 'home',
                     });
+                    alert('tarea actualizada');
                 })
                 .catch((error) => {
                     validation.value = error;
