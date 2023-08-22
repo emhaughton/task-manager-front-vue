@@ -9,7 +9,7 @@
             <div class="mb-2">
                 <label for="name">Título</label>
                 <input type="text" name="name" v-model="task.name"
-                    class="w-full p-2 border border-gray-300 outline-none rounded-md" />
+                    class="w-full p-2 border border-gray-300 outline-none rounded-md" required/>
             </div>
             <div class="mb-2">
                 <label for="description">Descriptión</label>
@@ -18,21 +18,16 @@
             </div>
             <div class="mb-2">
                 <label for="status">Estado</label>
-                <select name="status" v-model="task.status"
-                    class="w-full p-2 border border-gray-300 outline-none rounded-md bg-white">
-                    <option value="To do">To do</option>
-                    <option value="In progress">In progress</option>
-                    <option value="Completed">Completed</option>
+                <select name="status_uuid" v-model="task.status_uuid"
+                    class="w-full p-2 border border-gray-300 outline-none rounded-md bg-white" required>
+                    <option v-for="status in statuses.data" :value="status.uuid">{{status.name}}</option>
                 </select>
             </div>
             <div class="mb-2">
                 <label for="category">Category</label>
-                <select name="category" v-model="task.category"
-                    class="w-full p-2 border border-gray-300 outline-none rounded-md bg-white">
-                    <option value="CSS">CSS</option>
-                    <option value="PHP">PHP</option>
-                    <option value="JS">JS</option>
-                    <option value="Otros">Otros</option>
+                <select name="category_uuid" v-model="task.category_uuid"
+                    class="w-full p-2 border border-gray-300 outline-none rounded-md bg-white" required>
+                    <option v-for="category in categories.data" :value="category.uuid">{{category.name}}</option>
                 </select>
             </div>
             <button class="px-6 py-2 text-white bg-blue-500  hover:bg-sky-700 rounded-md mr-3" type="submit">
@@ -57,8 +52,16 @@ export default {
         let task = reactive({
             name: '',
             description: '',
-            status: '',
-            category: '',
+            status_uuid: '',
+            category_uuid: '',
+        });
+
+        let categories = reactive({
+            data: ''
+        });
+
+        let statuses = reactive({
+            data: ''
         });
         const validation = ref([]);
 
@@ -73,8 +76,30 @@ export default {
 
                     task.name = data.name;
                     task.description = data.description;
-                    task.status = data.status.name;
-                    task.category = data.category.name;
+                    task.status_uuid = data.status_uuid;
+                    task.category_uuid = data.category_uuid;
+                })
+                .catch((error) => {
+                    validation.value = error;
+                });
+        });
+
+        onMounted(() => {
+            axios
+                .get(`http://task-manager.test/api/category`)
+                .then((response) => {
+                   categories.data = response.data.data;
+                })
+                .catch((error) => {
+                    validation.value = error;
+                });
+        });
+
+        onMounted(() => {
+            axios
+                .get(`http://task-manager.test/api/status`)
+                .then((response) => {
+                   statuses.data = response.data.data;
                 })
                 .catch((error) => {
                     validation.value = error;
@@ -83,9 +108,11 @@ export default {
 
         function submit() {
             axios
-                .put('http://task-manager.test/api/task/${route.params.id}', { ...task })
-                .then((response) => {
-                    validation.value = response;
+                .put(`http://task-manager.test/api/task/${route.params.id}`, { ...task })
+                .then(() => {
+                    router.push({
+                        name: 'home',
+                    });
                 })
                 .catch((error) => {
                     validation.value = error;
@@ -94,6 +121,8 @@ export default {
 
         return {
             task,
+            categories,
+            statuses,
             validation,
             router,
             submit,
