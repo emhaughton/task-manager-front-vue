@@ -9,7 +9,7 @@
             <div class="mb-2">
                 <label for="name">Título</label>
                 <input type="text" name="name" v-model="task.name"
-                    class="w-full p-2 border border-gray-300 outline-none rounded-md" />
+                    class="w-full p-2 border border-gray-300 outline-none rounded-md" required/>
             </div>
             <div class="mb-2">
                 <label for="description">Descriptión</label>
@@ -18,21 +18,16 @@
             </div>
             <div class="mb-2">
                 <label for="status">Estado</label>
-                <select name="status" v-model="task.status"
-                    class="w-full p-2 border border-gray-300 outline-none rounded-md bg-white">
-                    <option value="To do">To do</option>
-                    <option value="In progress">In progress</option>
-                    <option value="Completed">Completed</option>
+                <select name="status_uuid" v-model="task.status_uuid"
+                    class="w-full p-2 border border-gray-300 outline-none rounded-md bg-white" required>
+                    <option v-for="status in statuses.data" :value="status.uuid">{{status.name}}</option>
                 </select>
             </div>
             <div class="mb-2">
                 <label for="category">Category</label>
-                <select name="category" v-model="task.category"
-                    class="w-full p-2 border border-gray-300 outline-none rounded-md bg-white">
-                    <option value="CSS">CSS</option>
-                    <option value="PHP">PHP</option>
-                    <option value="JS">JS</option>
-                    <option value="Otros">Otros</option>
+                <select name="category_uuid" v-model="task.category_uuid"
+                    class="w-full p-2 border border-gray-300 outline-none rounded-md bg-white" required>
+                    <option v-for="category in categories.data" :value="category.uuid">{{category.name}}</option>
                 </select>
             </div>
             <button class="px-6 py-2 text-white bg-blue-500  hover:bg-sky-700 rounded-md mr-3" type="submit">
@@ -48,7 +43,7 @@
 </template>
   
 <script>
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
@@ -57,9 +52,38 @@ export default {
         const task = reactive({
             uuid: crypto.randomUUID(),
             name: '',
-            description: '',
-            status: 'To do',
-            category: 'CSS',
+            description: ''
+        });
+
+        
+        let categories = reactive({
+            data: ''
+        });
+
+        let statuses = reactive({
+            data: ''
+        });
+
+        onMounted(() => {
+            axios
+                .get(`http://task-manager.test/api/category`)
+                .then((response) => {
+                   categories.data = response.data.data;
+                })
+                .catch((error) => {
+                    validation.value = error;
+                });
+        });
+
+        onMounted(() => {
+            axios
+                .get(`http://task-manager.test/api/status`)
+                .then((response) => {
+                   statuses.data = response.data.data;
+                })
+                .catch((error) => {
+                    validation.value = error;
+                });
         });
 
         const validation = ref([]);
@@ -82,6 +106,8 @@ export default {
         return {
             task,
             validation,
+            statuses,
+            categories,
             router,
             submit,
         };
